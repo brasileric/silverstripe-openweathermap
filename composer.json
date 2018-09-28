@@ -1,0 +1,25 @@
+{
+	"name": "hestec/silverstripe-openweathermap",
+	"description": "SilverStripe OpenWeatherMap API",
+	"type": "silverstripe-vendormodule",
+	"license": "BSD-3-Clause",
+	"keywords": ["silverstripe","OpenWeatherMap"],
+	"authors": [
+		{
+			"name": "Eric Hes",
+			"homepage": "http://www.hestec.nl",
+			"role": "Developer"
+		}
+	],
+  "support": {
+    "issues": "https://github.com/brasileric/silverstripe-openweathermap/issues"
+  },
+	"require": {
+		"silverstripe/framework": ">=4.0",
+		"silverstripe/cms": ">=4.0",
+		"cmfcmf/openweathermap-php-api": "v2.*"
+	},
+	"extra": {
+		"installer-name": "silverstripe-openweathermap"
+	}
+}

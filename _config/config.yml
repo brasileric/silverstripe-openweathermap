@@ -1,0 +1,6 @@
+---
+name: openweathermap
+---
+Page:
+  extensions:
+  - Hestec\OpenWeatherMap\OpenWeatherMapExtension

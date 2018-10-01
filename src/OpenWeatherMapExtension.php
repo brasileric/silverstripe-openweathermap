@@ -9,6 +9,7 @@ use SilverStripe\View\ArrayData;
 use SilverStripe\Core\Injector\Injector;
 use Psr\Log\LoggerInterface;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\ORM\FieldType\DBField;
 
 class OpenWeatherMapExtension extends DataExtension {
 
@@ -50,7 +51,7 @@ class OpenWeatherMapExtension extends DataExtension {
                     new ArrayData(array(
                         'CityName' => $weather->CityName,
                         'CityCountry' => $weather->CityCountry,
-                        'Date' => $date,
+                        'Date' => DBField::create_field('Date', $date),
                         'TemperatureMin' => round($weather->TemperatureMin),
                         'TemperatureMax' => round($weather->Temperature),
                         'Icon' => $weather->Icon,

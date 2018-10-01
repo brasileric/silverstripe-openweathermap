@@ -20,7 +20,7 @@ composer require "hestec/silverstripe-openweathermap": "1.*"
 
 ### Configuration ###
 
-Signup for a (free) account at https://openweathermap.org/ and get you API key.
+Signup for a (free) account at https://openweathermap.org/ and get your API key.
 
 Add the OpenWeatherMap API key to your yaml file:
 ```

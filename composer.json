@@ -1,9 +1,9 @@
 {
 	"name": "hestec/silverstripe-openweathermap",
-	"description": "SilverStripe OpenWeatherMap API",
+	"description": "Adds a simple 1 to 5 day weather forecast to your SilverStripe website",
 	"type": "silverstripe-vendormodule",
 	"license": "BSD-3-Clause",
-	"keywords": ["silverstripe","OpenWeatherMap"],
+	"keywords": ["silverstripe","OpenWeatherMap", "weather", "forecast"],
 	"authors": [
 		{
 			"name": "Eric Hes",

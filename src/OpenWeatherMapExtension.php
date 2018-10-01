@@ -25,7 +25,7 @@ class OpenWeatherMapExtension extends DataExtension {
         if ($data = OpenWeatherMapData::get()->filter(array('CityId' => $city))->first()){
 
             $now = new \DateTime();
-            $now->modify("- 1 minute");
+            $now->modify("- 3 hours");
 
             if ($data->Created < $now->format('Y-m-d H:i')){
 

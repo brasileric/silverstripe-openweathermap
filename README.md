@@ -63,7 +63,7 @@ If you want to use your own icons instead of the standard OpenWeatherMap icons, 
        <p>$CityName, $CityCountry $Date:<br>
            Minimum temperatuur: $TemperatureMin<br>
            Maximum temperatuur: $TemperatureMax<br>
-           <img src="/themes/simple/img/weather/$IconUrl.png">
+           <img src="/themes/simple/img/weather/$Icon\.png">
        </p>
    <% end_loop %>
    ```

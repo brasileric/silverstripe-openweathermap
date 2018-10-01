@@ -6,22 +6,25 @@ use SilverStripe\ORM\DataExtension;
 use Cmfcmf\OpenWeatherMap;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\View\ArrayData;
+use SilverStripe\Core\Injector\Injector;
+use Psr\Log\LoggerInterface;
+use SilverStripe\Core\Config\Config;
 
 class OpenWeatherMapExtension extends DataExtension {
 
-    public function WeatherForecast($days = 6, $city){
+    public function WeatherForecast($days = 5, $city){
 
         $today = new \DateTime();
 
         // maximum forecast days with the free account is today + 5, so 6
-        if ($days > 6){
-            $days = 6;
+        if ($days > 5){
+            $days = 5;
         }
 
-        if ($data = OpenWeatherMapData::get()->filter(array('CityId' => $city, 'Date' => $today->format('Y-m-d')))->first()){
+        if ($data = OpenWeatherMapData::get()->filter(array('CityId' => $city))->first()){
 
             $now = new \DateTime();
-            $now->modify("- 1 hour");
+            $now->modify("- 1 minute");
 
             if ($data->Created < $now->format('Y-m-d H:i')){
 
@@ -42,29 +45,27 @@ class OpenWeatherMapExtension extends DataExtension {
 
             $date = $today->format('Y-m-d');
 
-            $weather = $this->getWeatherData($date, $city);
+            if ($weather = $this->getWeatherData($date, $city)){
+                $output->push(
+                    new ArrayData(array(
+                        'CityName' => $weather->CityName,
+                        'CityCountry' => $weather->CityCountry,
+                        'Date' => $date,
+                        'TemperatureMin' => round($weather->TemperatureMin),
+                        'TemperatureMax' => round($weather->Temperature),
+                        'Icon' => $weather->Icon,
+                        'IconUrl' => $weather->IconUrl
+                    ))
+                );
 
-            $output->push(
-                new ArrayData(array(
-                    'CityName' => $weather->CityName,
-                    'CityCountry' => $weather->CityCountry,
-                    'Date' => $date,
-                    'TemperatureMin' => round($weather->TemperatureMin),
-                    'TemperatureMax' => round($weather->Temperature),
-                    'Icon' => $weather->Icon,
-                    'IconUrl' => $weather->IconUrl
-                ))
-            );
+            }else{
+                Injector::inst()->get(LoggerInterface::class)->warn('OpenWeatherMap -> no records in table for date: ' . $date);
+            }
 
-            /*$output[]['Date'] = $date;
-            $output[]['TemparatureMin'] = $this->getTemperatureMin($date);*/
             $today->modify("+ 1 day");
-
             $count++;
 
         }
-
-        //print_r($output);
 
         return $output;
 
@@ -72,43 +73,56 @@ class OpenWeatherMapExtension extends DataExtension {
 
     public function UpdateOwm($city){
 
-        $list = OpenWeatherMapData::get();
+        $owm = new OpenWeatherMap(Config::inst()->get(__CLASS__, 'ApiKey'));
 
-        foreach($list as $item) {
-            $item->delete();
-        }
+        try {
 
-        $owm = new OpenWeatherMap('6a57afde213d03c6209c3c2c38beac75');
+            $forecast = $owm->getWeatherForecast($city, 'metric', 'nl', '', 5);
 
-        $forecast = $owm->getWeatherForecast($city, 'metric', 'nl', '', 5);
+            $list = OpenWeatherMapData::get();
 
-        foreach ($forecast as $weather) {
+            foreach ($list as $item) {
+                $item->delete();
+            }
 
-            $add = new OpenWeatherMapData();
-            $add->CityId = $forecast->city->id;
-            $add->CityName = $forecast->city->name;
-            $add->CityCountry = $forecast->city->country;
-            $add->Date = $weather->time->day->format('Y-m-d');
-            $add->Temperature = $weather->temperature->getValue();
-            $add->Icon = $weather->weather->icon;
-            $add->IconUrl = $weather->weather->getIconUrl();
-            $add->write();
 
+            foreach ($forecast as $weather) {
+
+                $add = new OpenWeatherMapData();
+                $add->CityId = $forecast->city->id;
+                $add->CityName = $forecast->city->name;
+                $add->CityCountry = $forecast->city->country;
+                $add->Date = $weather->time->day->format('Y-m-d');
+                $add->Temperature = $weather->temperature->getValue();
+                $add->Icon = $weather->weather->icon;
+                $add->IconUrl = $weather->weather->getIconUrl();
+                $add->write();
+
+            }
+
+        } catch(OWMException $e) {
+            Injector::inst()->get(LoggerInterface::class)->err('OpenWeatherMap exception: ' . $e->getMessage() . ' (Code ' . $e->getCode() . ').');
+
+        } catch(\Exception $e) {
+            Injector::inst()->get(LoggerInterface::class)->err('General exception: ' . $e->getMessage() . ' (Code ' . $e->getCode() . ').');
         }
 
     }
 
     public function getWeatherData($date, $city){
 
-        $output = OpenWeatherMapData::get()->filter(array('Date' => $date, 'CityId' => $city))->sort('Temperature')->last();
+        if ($output = OpenWeatherMapData::get()->filter(array('Date' => $date, 'CityId' => $city))->sort('Temperature')->last()){
 
-        $min = OpenWeatherMapData::get()->filter(array('Date' => $date, 'CityId' => $city))->sort('Temperature')->first();
+            $min = OpenWeatherMapData::get()->filter(array('Date' => $date, 'CityId' => $city))->sort('Temperature')->first();
 
-        $output = $output->customise([
-            'TemperatureMin' => $min->Temperature
-        ]);
+            $output = $output->customise([
+                'TemperatureMin' => $min->Temperature
+            ]);
 
-        return $output;
+            return $output;
+
+        }
+        return false;
 
     }
 

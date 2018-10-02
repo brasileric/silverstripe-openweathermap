@@ -132,11 +132,11 @@ class OpenWeatherMapExtension extends DataExtension {
 
             $min = OpenWeatherMapData::get()->filter(array('Date' => $date, 'CityId' => $city))->sort('Temperature')->first();
 
-            // get the most used icon between 9:00 and 18:00 (get TimeFrom between 8:00 and 17:00)
-            // if there is not a most used it gets the icon from the time slot 9:00
+            // get the most used icon in the day time
+            // if there is not a most used it gets the first day time icon
             $query = "SELECT Icon, count(Icon) AS icons ";
             $query .= "FROM OpenWeatherMapData ";
-            $query .= "WHERE CityId = '".$city."' AND Date = '".$date."' AND TimeFrom BETWEEN '08:00' AND '17:00' ";
+            $query .= "WHERE CityId = '".$city."' AND Date = '".$date."' AND (SUBSTRING(Icon,3,1) = 'd') ";
             $query .= "GROUP BY Icon ";
             $query .= "ORDER BY icons DESC LIMIT 1";
 

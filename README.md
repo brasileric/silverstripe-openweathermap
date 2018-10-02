@@ -1,7 +1,7 @@
 # SilverStripe OpenWeatherMap #
 
 Adds a simple 1 to 5 day weather forecast to your SilverStripe website with data from the free version of OpenWeatherMap (https://openweathermap.org/).
-This free version gives only a 5 day/3 hours forecast, but this module turns the collected date into a 1 to 5 day full day forecast. At the moment it's just a simple forecast with en weather icon and the minimum and maximum temperature.
+This free version gives only a 5 day/3 hours forecast, but this module turns the collected date into a 1 to 5 day full day forecast. At the moment it's just a simple forecast with a weather icon and the minimum and maximum temperature.
 
 ### Requirements ###
 

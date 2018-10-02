@@ -141,7 +141,6 @@ class OpenWeatherMapExtension extends DataExtension {
             $query .= "ORDER BY icons DESC LIMIT 1";
 
             $icon = DB::query($query)->value();
-            echo $icon;
 
             $output = $output->customise([
                 'Icon' => $icon,

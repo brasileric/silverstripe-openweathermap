@@ -1,12 +1,12 @@
 # SilverStripe OpenWeatherMap #
 
 Adds a simple 1 to 5 day weather forecast to your SilverStripe website with data from the free version of OpenWeatherMap (https://openweathermap.org/).
-This free version gives only a 5 day/3 hours forecast, but this module turns the collected date into a 1 to 5 day full day forecast.
+This free version gives only a 5 day/3 hours forecast, but this module turns the collected date into a 1 to 5 day full day forecast. At the moment it's just a simple forecast with en weather icon and the minimum and maximum temperature.
 
 ### Requirements ###
 
-SilverStripe 4<br>
-cmfcmf/openweathermap-php-api
+* SilverStripe 4<br>
+* cmfcmf/openweathermap-php-api
 
 ### Version ###
 
@@ -32,7 +32,7 @@ do a dev/build and flush.
 
 ### Working ###
 
-The forecast data of the free version of OpenWeatherMap (maximum 5 days) will be stored in the table OpenWeatherMapData and is updated just once in 3 hours when someone visits the website. This method prevents for too many api calls and will show the weather even if the OpenWeatherMap service is not available for a while.
+The forecast data of the free version of OpenWeatherMap (maximum 5 days) will be stored in the table OpenWeatherMapData and is updated just once in 3 hours when someone visits the website. This method reduces the number of api calls and will show the weather even if the OpenWeatherMap service is not available for a while.
 
 ### Usage ###
 
@@ -75,5 +75,6 @@ No known issues.
 
 ### Todo ###
 
-Make an elemental extension.<br>
-Tests.
+* Make an elemental extension.
+* Tests.
+* More forecast types (3 hours forecast, more details).

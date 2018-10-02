@@ -10,6 +10,8 @@ use SilverStripe\Core\Injector\Injector;
 use Psr\Log\LoggerInterface;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\ORM\DB;
+use SilverStripe\ORM\Queries\SQLSelect;
 
 class OpenWeatherMapExtension extends DataExtension {
 
@@ -80,24 +82,38 @@ class OpenWeatherMapExtension extends DataExtension {
 
             $forecast = $owm->getWeatherForecast($city, 'metric', 'nl', '', 5);
 
-            $list = OpenWeatherMapData::get();
+            $today = new \DateTime();
+
+            $list = OpenWeatherMapData::get()->exclude('Date', $today->format('Y-m-d'));
 
             foreach ($list as $item) {
                 $item->delete();
             }
 
-
             foreach ($forecast as $weather) {
 
-                $add = new OpenWeatherMapData();
-                $add->CityId = $forecast->city->id;
-                $add->CityName = $forecast->city->name;
-                $add->CityCountry = $forecast->city->country;
-                $add->Date = $weather->time->day->format('Y-m-d');
-                $add->Temperature = $weather->temperature->getValue();
-                $add->Icon = $weather->weather->icon;
-                $add->IconUrl = $weather->weather->getIconUrl();
-                $add->write();
+                if ($update = OpenWeatherMapData::get()->filter(array('CityId' => $forecast->city->id, 'Date' => $weather->time->day->format('Y-m-d'), 'TimeFrom' => $weather->time->from->format('H:i')))->first()) {
+
+                    $update->Temperature = $weather->temperature->getValue();
+                    $update->Icon = $weather->weather->icon;
+                    $update->IconUrl = $weather->weather->getIconUrl();
+                    $update->write();
+
+                }else{
+
+                    $add = new OpenWeatherMapData();
+                    $add->CityId = $forecast->city->id;
+                    $add->CityName = $forecast->city->name;
+                    $add->CityCountry = $forecast->city->country;
+                    $add->Date = $weather->time->day->format('Y-m-d');
+                    $add->TimeFrom = $weather->time->from->format('H:i');
+                    $add->TimeTo = $weather->time->to->format('H:i');
+                    $add->Temperature = $weather->temperature->getValue();
+                    $add->Icon = $weather->weather->icon;
+                    $add->IconUrl = $weather->weather->getIconUrl();
+                    $add->write();
+
+                }
 
             }
 
@@ -116,7 +132,20 @@ class OpenWeatherMapExtension extends DataExtension {
 
             $min = OpenWeatherMapData::get()->filter(array('Date' => $date, 'CityId' => $city))->sort('Temperature')->first();
 
+            // get the most used icon between 9:00 and 18:00 (get TimeFrom between 8:00 and 17:00)
+            // if there is not a most used it gets the icon from the time slot 9:00
+            $query = "SELECT Icon, count(Icon) AS icons ";
+            $query .= "FROM OpenWeatherMapData ";
+            $query .= "WHERE CityId = '".$city."' AND Date = '".$date."' AND TimeFrom BETWEEN '08:00' AND '17:00' ";
+            $query .= "GROUP BY Icon ";
+            $query .= "ORDER BY icons DESC LIMIT 1";
+
+            $icon = DB::query($query)->value();
+            echo $icon;
+
             $output = $output->customise([
+                'Icon' => $icon,
+                'IconUrl' => "//openweathermap.org/img/w/".$icon.".png",
                 'TemperatureMin' => $min->Temperature
             ]);
 

@@ -97,7 +97,7 @@ class OpenWeatherMapExtension extends DataExtension {
                     $update->Temperature = $weather->temperature->getValue();
                     $update->Icon = $weather->weather->icon;
                     $update->IconUrl = $weather->weather->getIconUrl();
-                    //$update->write();
+                    $update->write();
 
                 }else{
 
